@@ -30,6 +30,13 @@ module Guard
     end
 
     def build_rails_command
+      #  Thu Mar  1 00:02:56 IST 2012, ram@sarvasv.in (ramonrails)
+      #  * compatibility with rails 2.x
+      #  * BDD/TDD can also help existing apps on older rails
+      rails_script = 'rails s' # default script
+      if ( ObjectSpace.each_object(Module).collect(&:name).include?( 'Rails::VERSION'))
+        rails_script = 'script/server' if (Rails::VERSION::STRING[0..0] == '2')
+      end
       rails_options = [
         '-e', options[:environment],
         '-p', options[:port],
@@ -40,7 +47,8 @@ module Guard
       rails_options << '-u' if options[:debugger]
       rails_options << options[:server] if options[:server]
 
-      %{sh -c 'cd #{Dir.pwd} && rails s #{rails_options.join(' ')} &'}
+      #  * works for rails 2.x or 3.x
+      %{sh -c 'cd #{Dir.pwd} && #{rails_script} #{rails_options.join(' ')} &'}
     end
 
     def pid_file
